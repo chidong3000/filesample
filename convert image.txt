@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WinFormsApp2
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Title = "Open Image";
+                //dlg.Filter = "bmp files (*.bmp)|*.bmp";
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    //PictureBox PictureBox1 = new PictureBox();
+                    pictureBox1.Image = new Bitmap(dlg.FileName);
+
+                    // Add the new control to its parent's controls collection
+                    //this.Controls.Add(PictureBox1);
+                }
+            }
+        }
+
+        public Image ConvertBase64ToImage(string base64String)
+        {
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+            using (MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length))
+            {
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                return Image.FromStream(ms, true);
+            }
+        }
+
+        public string ConvertImageToBase64(Image file)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                file.Save(memoryStream, file.RawFormat);
+                byte[] imageBytes = memoryStream.ToArray();
+                return Convert.ToBase64String(imageBytes);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var base64= ConvertImageToBase64(pictureBox1.Image);
+            textBox1.Text = base64;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var image= ConvertBase64ToImage(textBox1.Text);
+            pictureBox1.Image = image;
+        }
+    }
+}
+
